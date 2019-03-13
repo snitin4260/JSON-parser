@@ -11,11 +11,9 @@ const stringParser = input => {
     "\t": "\t"
   };
   if (!(input[0] == '"')) return null;
-  str = str + '"';
   let i = 1;
   while (i <= input.length - 1) {
     if (i !== 0 && input[i] == '"') {
-      str = str + '"';
       return [str, input.slice(i + 1)];
     } else if (specialChars[input[i]]) {
       str = str + specialChars[input[i]];
