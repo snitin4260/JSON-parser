@@ -36,9 +36,7 @@ const arrayParser = input => {
   let newArr = [];
   if (!input[0] == "[") return null;
   let i = 1;
-  while (i < input.length) {
-
-  }
+  
 };
 
 
