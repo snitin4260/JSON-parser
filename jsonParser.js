@@ -71,7 +71,8 @@ const stringParser = input => {
   }
 };
 
-//console.log(stringParser('"     "'));
+//TODO
+// correct array parser for the input [,]
 const arrayParser = input => {
   // do not mutate input
   // work on a copy of input
@@ -91,6 +92,9 @@ const arrayParser = input => {
       else {
         newArr.push(match[0]);
         str = match[1];
+        //same like objects  when "space ]"  is
+        //present it will fail
+        str = str.replace(/^\s+/, "");
       }
     } else if (str[0] == ",") {
       // remove ,
@@ -129,7 +133,8 @@ const objectParser = input => {
       let match = allParsers(input);
       if (!match) return null;
       else if (typeof match[0] !== "string") {
-        throw new Error("Object keys must be strings");
+        // throw new Error("Object keys must be strings");
+        return null;
       } else {
         currentKey = match[0];
         input = match[1];
@@ -150,16 +155,19 @@ const objectParser = input => {
         //now it has to be parsed by all value parsers
         let match = allParsers(input);
         if (!match) {
-          throw new Error("Wrong format. Insert a valid value");
+          // throw new Error("Wrong format. Insert a valid value");
+          return null;
         } else {
           newObj[currentKey] = match[0];
           //get remiaining string to be evaluated
-          console.log(newObj)
           input = match[1];
           valueFound = true;
         }
       } else if (valueFound) {
         input = input.replace(/^\s+/, "");
+        //after value found if we have /n  }
+        // we need to check that case
+        if (input[0] == "}") break;
         if (input[0] !== ",") {
           return null;
         } else {
@@ -199,15 +207,10 @@ const util = require("util");
 // );
 
 // console.log(
-//   util.inspect(
-//     arrayParser(
-//       '[   89,   67,    56,     78,"\u8976",     "hello   ",[    90,  true,    false,  [89,90,67, 67]]] hello world'
-//     ),
-//     {
-//       showHidden: false,
-//       depth: null
-//     }
-//   )
+//   util.inspect(arrayParser('[{ "89": false,  "98": 567}  ]'), {
+//     showHidden: false,
+//     depth: null
+//   })
 // );
 
 const start = path => {
@@ -225,4 +228,4 @@ const start = path => {
   });
 };
 
-start("./test/pass3.json");
+start(`./test/redit.json`);
