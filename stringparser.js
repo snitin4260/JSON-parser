@@ -27,4 +27,4 @@ const stringParser = input => {
   }
 };
 
-console.log(stringParser('"\u8932\uf678\u7218\t\\\b7"89900'));
+console.log(stringParser('"     "'));
