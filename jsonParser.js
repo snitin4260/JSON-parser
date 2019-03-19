@@ -1,22 +1,9 @@
-const valueParser = input => {
-  input = input.replace(/^\s+/, '')
-  const parsers = [nullParser, boolParser, numberParser, stringParser, arrayParser, objectParser]
-  let value
-  for (let parser of parsers) {
-    if (!value) {
-      value = parser(input)
-    } else break
-  }
-  return value
-}
 
 const nullParser = input => input.startsWith('null') ? [null, input.slice(4)] : null
 
-const boolParser = input => {
-  if (input.startsWith('true')) return [true, input.slice(4)]
-  else if (input.startsWith('false')) return [false, input.slice(5)]
-  return null
-}
+const trueParser = input => input.startsWith('true') ? [true, input.slice(4)] : null
+
+const falseParser = input => input.startsWith('false') ? [false, input.slice(5)] : null
 
 const numberParser = input => {
   let regex = /^-?(0|([1-9][0-9]*))(\.[0-9]+)?([E][+-]?[0-9]+)?/i
@@ -56,8 +43,7 @@ const stringParser = input => {
 
 const arrayParser = input => {
   if (input[0] !== '[') return null
-  let str
-  let newArr = []
+  let str; let newArr = []
   str = input.slice(1)
   while (str[0] !== ']') {
     if (str[0] !== ',') {
@@ -87,17 +73,7 @@ const arrayParser = input => {
 
 const objectParser = input => {
   if (input[0] !== '{') return null
-
-  let newObj = {}
-
-  let currentKey
-  let valueFound = false
-
-  // object key has to be parsed or not
-  let keyShouldBeParsed = true
-  let colon = false
-
-  // remove { from string
+  let newObj = {}; let currentKey; let valueFound = false; let keyShouldBeParsed = true; let colon = false
   input = input.slice(1)
   // again remove all whitespaces
   input = input.replace(/^\s+/, '')
@@ -107,7 +83,6 @@ const objectParser = input => {
       let match = valueParser(input)
       if (!match) return null
       else if (typeof match[0] !== 'string') {
-        // throw new Error("Object keys must be strings");
         return null
       } else {
         currentKey = match[0]
@@ -163,19 +138,27 @@ const objectParser = input => {
   }
 }
 
+const valueParser = input => {
+  input = input.replace(/^\s+/, '')
+  const parsers = [nullParser, trueParser, falseParser, numberParser, stringParser, arrayParser, objectParser]
+  let value
+  for (let parser of parsers) {
+    if (!value) {
+      value = parser(input)
+    } else break
+  }
+  return value
+}
+
 const start = path => {
   let fs = require('fs')
   let content
-  // First I want to read the file
   fs.readFile(path, function read (err, data) {
-    if (err) {
-      throw err
-    }
+    if (err) throw err
     content = data
     let result = content.toString('utf8')
-    let val = valueParser(result)
-    console.log(JSON.stringify(val, null, 4))
+    console.log(JSON.stringify(valueParser(result), null, 4))
   })
 }
 
-start(`./test/twitter.json`)
+start(`./test/pass2.json`)
