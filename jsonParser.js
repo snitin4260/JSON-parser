@@ -75,9 +75,7 @@ const objectParser = input => {
   if (input[0] !== '{') return null
   let newObj = {}; let currentKey; let valueFound = false; let keyShouldBeParsed = true; let colon = false
   input = input.slice(1)
-  // again remove all whitespaces
   input = input.replace(/^\s+/, '')
-
   while (input[0] !== '}') {
     if (keyShouldBeParsed) {
       let match = valueParser(input)
@@ -93,29 +91,25 @@ const objectParser = input => {
       // again remove whitespace
       // until , or a value is encountered
       input = input.replace(/^\s+/, '')
-      if (!colon && input[0] === ':') {
-        input = input.slice(1)
-        colon = true
-      } else if (!colon && !input[0] === ':') {
-        return null
+      if (!colon) {
+        if (input[0] === ':') {
+          input = input.slice(1)
+          colon = true
+        } else return null
       } else if (colon && !valueFound) {
         // again check for white spaces
         input = input.replace(/^\s+/, '')
-        // now it has to be parsed by all value parsers
         let match = valueParser(input)
         if (!match) {
-          // throw new Error("Wrong format. Insert a valid value");
           return null
         } else {
           newObj[currentKey] = match[0]
-          // get remiaining string to be evaluated
           input = match[1]
           valueFound = true
         }
       } else if (valueFound) {
         input = input.replace(/^\s+/, '')
-        // after value found if we have /n  }
-        // we need to check that case
+        // after value found if we have /n  } , check that case
         if (input[0] === '}') break
         if (input[0] !== ',') {
           return null
@@ -150,15 +144,14 @@ const valueParser = input => {
   return value
 }
 
-const start = path => {
+const main = path => {
   let fs = require('fs')
   let content
   fs.readFile(path, function read (err, data) {
     if (err) throw err
     content = data
     let result = content.toString('utf8')
-    console.log(JSON.stringify(valueParser(result), null, 4))
+    console.log(JSON.stringify(valueParser(result)[0]))
   })
 }
-
-start(`./test/pass2.json`)
+main(`./test/twitter.json`)
