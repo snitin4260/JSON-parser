@@ -1,30 +1,28 @@
-
 const nullParser = input => input.startsWith('null') ? [null, input.slice(4)] : null
 
 const trueParser = input => input.startsWith('true') ? [true, input.slice(4)] : null
 
 const falseParser = input => input.startsWith('false') ? [false, input.slice(5)] : null
 
-const numberParser = input => {
-  let regex = /^-?(0|([1-9][0-9]*))(\.[0-9]+)?([E][+-]?[0-9]+)?/i
-  let match = regex.exec(input)
-  if (!match) return null
-  return [match[0] * 1, input.slice(match[0].length)]
-}
+let result
+
+const numberParser = input => (result = input.match(/^-?(0|([1-9][0-9]*))(\.[0-9]+)?([E][+-]?[0-9]+)?/i)) && [result[0], input.slice(result[0].length)]
 
 const stringParser = input => {
   if (input[0] !== '"') return null
-  let str = ''; let i = 1
+  let str = ''; let i = 1; let isEscape = false
   let specialChars = { '\\': '\\', '/': '/', '"': '"', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' }
   while (i <= input.length - 1) {
-    if (i !== 0 && input[i] === '"') {
+    if (input[i] === '"' && isEscape === false) {
       return [str, input.slice(i + 1)]
-    } else if (input[i] === '\\') {
-      if (specialChars[input[i + 1]]) {
-        str = str + specialChars[input[i + 1]]
-        i = i + 2
-      } else if (input[i + 1] === 'u') {
-        let hex = input.slice(i + 2, i + 6)
+    }
+    if (isEscape === false) {
+      if (input[i] === '\\') { isEscape = true } else { str = str + input[i] }
+    } else {
+      if (specialChars[input[i]]) {
+        str = str + specialChars[input[i]]
+      } else if (input[i] === 'u') {
+        let hex = input.slice(i + 1, i + 5)
         let regex = /[0-9A-Fa-f]{4}/
         let check = regex.test(hex)
         if (!check) return null
@@ -32,12 +30,13 @@ const stringParser = input => {
         let charCode = parseInt(hex, 16)
         let char = String.fromCharCode(charCode)
         str = str + char
-        i = i + 6
-      } else return null
-    } else if (input[i] !== '"' && input[i] !== '\\') {
-      str = str + input[i]
-      i = i + 1
-    } else return null
+        i = i + 4
+      } else {
+        return null
+      }
+      isEscape = false
+    }
+    i = i + 1
   }
 }
 
@@ -151,7 +150,7 @@ const main = path => {
     if (err) throw err
     content = data
     let result = content.toString('utf8')
-    console.log(JSON.stringify(valueParser(result)[0]))
+    console.log(JSON.stringify(valueParser(result)))
   })
 }
-main(`./test/twitter.json`)
+main(`./test/reddit.json`)
