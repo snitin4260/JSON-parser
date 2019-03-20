@@ -39,7 +39,7 @@ const arrayParser = input => {
         // same like objects  when "    ]"  is
         // present it will fail
         // so do this here
-        // input = input.replace(/^\s+/, '')
+        input = input.replace(/^\s+/, '')
       }
     } else {
       // remove ,
@@ -134,4 +134,4 @@ const main = path => {
     console.log(JSON.stringify(valueParser(result)))
   })
 }
-main(`./test/twitter.json`)
+main(`./test/pass1.json`)
