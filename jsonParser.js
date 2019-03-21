@@ -2,7 +2,7 @@ let result
 const nullParser = input => (result = input.match(/^null/)) && [null, input.slice(4)]
 const trueParser = input => (result = input.match(/^true/)) && [true, input.slice(4)]
 const falseParser = input => (result = input.match(/^false/)) && [false, input.slice(5)]
-const numberParser = input => (result = input.match(/^-?(0|([1-9][0-9]*))(\.[0-9]+)?([E][+-]?[0-9]+)?/i)) && [result[0], input.slice(result[0].length)]
+const numberParser = input => (result = input.match(/^-?(0|([1-9][0-9]*))(\.[0-9]+)?([E][+-]?[0-9]+)?/i)) && [result[0] * 1, input.slice(result[0].length)]
 const spaceParser = input => input.replace(/^\s+/, '')
 
 const stringParser = input => {
@@ -30,23 +30,17 @@ const stringParser = input => {
 const arrayParser = input => {
   if (input[0] !== '[') return null; else input = input.slice(1)
   let newArr = []
+  input = spaceParser(input)
   while (input[0] !== ']') {
-    if (input[0] !== ',') {
-      input = input.replace(/^\s+/, '')
-      if (input[0] === ']') break
-      let match = valueParser(input)
-      if (!match) return null
-      else {
-        newArr.push(match[0])
-        input = match[1]
-        // same like objects  when "    ]"  is present it will fail, so remove space
-        input = input.replace(/^\s+/, '')
-      }
-    } else {
-      input = input.slice(1).replace(/^\s+/, '')
-      if (input[0] === ']') return null
-      if (input[0] === ',') return null
-    }
+    input = spaceParser(input)
+    let match = valueParser(input)
+    if (!match) return null
+    newArr.push(match[0])
+    input = match[1]
+    input = spaceParser(input)
+    if (input[0] === ',') input = input.slice(1)
+    else if (input[0] === ']') return [newArr, input.slice(1)]
+    else return null
   }
   return [newArr, input.slice(1)]
 }
@@ -71,7 +65,6 @@ const objectParser = input => {
     if (!match) return null
     else {
       newObj[key] = match[0]
-      console.log(newObj)
       input = match[1]
     }
     input = spaceParser(input)
@@ -85,7 +78,7 @@ const objectParser = input => {
 }
 
 const valueParser = input => {
-  input = input.replace(/^\s+/, '')
+  input = spaceParser(input)
   const parsers = [stringParser, nullParser, trueParser, falseParser, numberParser, arrayParser, objectParser]
   let value
   for (let parser of parsers) {
@@ -106,4 +99,4 @@ const main = path => {
   })
 }
 
-main(`./test/pass1.json`)
+main(`./test/reddit.json`)
