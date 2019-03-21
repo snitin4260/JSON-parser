@@ -29,11 +29,12 @@ const arrayParser = input => {
     if (result) newArr.push(result[0]); else return null
     input = result[1]
     input = spaceParser(input)
-    if (input[0] === ',') {
+    if (input[0] === ',' || input[0] === ']') {
+      if (input[0] === ']') continue
       input = input.slice(1)
       input = spaceParser(input)
       if (input[0] === ']') return null
-    }
+    } else return null
   }
   return [newArr, input.slice(1)]
 }
@@ -49,11 +50,14 @@ const objectParser = input => {
     if (result) newObj[key] = result[0]; else return null
     input = result[1]
     input = spaceParser(input)
-    if (input[0] === ',') {
+    // for values followed by a value without a comma
+    // this fix was needed
+    if (input[0] === ',' || input[0] === '}') {
+      if (input[0] === '}') continue
       input = input.slice(1)
       input = spaceParser(input)
       if (input[0] === '}') return null
-    }
+    } else return null
   }
   return [newObj, input.slice(1)]
 }
