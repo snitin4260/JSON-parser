@@ -69,8 +69,13 @@ const main = path => {
     if (err) throw err
     let content = data.toString('utf8')
     content = spaceParser(content)
-    console.log(JSON.stringify(valueParser(content)))
+    let result = valueParser(content)
+    if (!result) console.log('invalid json')
+    else {
+      let remainingStringCheck = spaceParser(result[1])
+      if (remainingStringCheck.length >= 1) console.log('invalid json'); else console.log(JSON.stringify(result[0]))
+    }
   })
 }
 
-main(`./test/reddit.json`)
+main(`./test/twitter.json`)
