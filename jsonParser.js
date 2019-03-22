@@ -25,13 +25,9 @@ const arrayParser = input => {
   let newArr = []
   input = spaceParser(input)
   while (input[0] !== ']') {
-    result = valueParser(input)
-    if (result) newArr.push(result[0]); else return null
-    input = result[1]
-    input = spaceParser(input)
-    if (input[0] === ',') {
-      input = input.slice(1)
-      input = spaceParser(input)
+    if ((result = valueParser(input))) newArr.push(result[0]); else return null
+    if ((input = spaceParser(result[1]))[0] === ',') {
+      input = spaceParser(input.slice(1))
       if (input[0] === ']') return null
     } else if (input[0] !== ']') return null
   }
@@ -47,11 +43,8 @@ const objectParser = input => {
     if (input[0] === ':') input = input.slice(1); else return null
     input = spaceParser(input); result = valueParser(input)
     if (result) newObj[key] = result[0]; else return null
-    input = result[1]
-    input = spaceParser(input)
-    if (input[0] === ',') {
-      input = input.slice(1)
-      input = spaceParser(input)
+    if ((input = spaceParser(result[1]))[0] === ',') {
+      input = spaceParser(input.slice(1))
       if (input[0] === '}') return null
     } else if (input[0] !== '}') return null
   }
@@ -74,4 +67,4 @@ const main = path => {
   })
 }
 
-main(`./test/twitter.json`)
+main(`./test/pass1.json`)
